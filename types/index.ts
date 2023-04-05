@@ -20,8 +20,13 @@ export interface ExtendedSession extends Session {
 
 export interface PlaylistContextState {
   playlist: SpotifyApi.PlaylistObjectSimplified[];
+  selectedPlaylistId: string | null;
+  selectedPlaylist: SpotifyApi.SinglePlaylistResponse | null;
 }
 
 export interface IPlaylistContext {
   playlistContextState: PlaylistContextState;
+  updatePlaylistContextState: (
+    updateObj: Partial<PlaylistContextState>
+  ) => void;
 }

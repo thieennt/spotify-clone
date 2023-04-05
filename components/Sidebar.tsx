@@ -11,15 +11,26 @@ import {
 import IconButton from "./IconButton";
 import { signOut, useSession } from "next-auth/react";
 import { usePlaylistContext } from "../contexts/PlaylistContext";
+import useSpotify from "../hooks/useSpotify";
 
 const Divider = () => <hr className="border-t-[0.1px] border-gray-900" />;
 
 const Sidebar = () => {
+  const spotifyApi = useSpotify();
   const { data: session } = useSession();
-  console.log("SESSION ", session);
 
-  const { playlistContextState: playlists } = usePlaylistContext();
-  console.log("playlistContextState", playlists);
+  const {
+    playlistContextState: playlists,
+    updatePlaylistContextState: updatePlaylist,
+  } = usePlaylistContext();
+
+  const setSelectedPlaylist = async (playlistId: string) => {
+    const playlistResponse = await spotifyApi.getPlaylist(playlistId);
+    updatePlaylist({
+      selectedPlaylistId: playlistId,
+      selectedPlaylist: playlistResponse.body,
+    });
+  };
 
   return (
     <div className="text-gray-500 px-5 pt-5 pb-36 text-xs lg:text-sm border-r border-gray-900 h-screen overflow-y-scroll scrollbar-hidden sm:maw-w-[12rem] lg:max-w-[15rem] hidden md:block">
@@ -38,7 +49,11 @@ const Sidebar = () => {
 
         {/* Playlist */}
         {playlists.playlist.map((item) => (
-          <p key={item.id} className="cursor-pointer hover:text-white">
+          <p
+            key={item.id}
+            className="cursor-pointer hover:text-white"
+            onClick={() => setSelectedPlaylist(item.id)}
+          >
             {item.name}
           </p>
         ))}

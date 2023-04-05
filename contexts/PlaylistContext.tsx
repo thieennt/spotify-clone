@@ -11,10 +11,13 @@ import { IPlaylistContext, PlaylistContextState } from "../types";
 
 const defaultPlaylistContextState: PlaylistContextState = {
   playlist: [],
+  selectedPlaylistId: null,
+  selectedPlaylist: null,
 };
 
 export const PlaylistContext = createContext<IPlaylistContext>({
   playlistContextState: defaultPlaylistContextState,
+  updatePlaylistContextState: () => {},
 });
 
 export const usePlaylistContext = () => useContext(PlaylistContext);
@@ -26,10 +29,16 @@ const PlaylistContextProvider = ({ children }: { children: ReactNode }) => {
     defaultPlaylistContextState
   );
 
+  const updatePlaylistContextState = (
+    updateObj: Partial<PlaylistContextState>
+  ) => {
+    setPlaylistContextState((prev) => ({ ...prev, ...updateObj }));
+  };
+
   useEffect(() => {
     const getUserPlaylist = async () => {
       const userPlaylistResponse = await spotifyApi.getUserPlaylists();
-      setPlaylistContextState({ playlist: userPlaylistResponse.body.items });
+      updatePlaylistContextState({ playlist: userPlaylistResponse.body.items });
     };
 
     if (spotifyApi.getAccessToken()) {
@@ -39,6 +48,7 @@ const PlaylistContextProvider = ({ children }: { children: ReactNode }) => {
 
   const playlistContextProviderData = {
     playlistContextState,
+    updatePlaylistContextState,
   };
 
   return (
